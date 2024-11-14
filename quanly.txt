@@ -1,0 +1,118 @@
+string to_lower(const string &s) {
+    string result = s;
+    for (int i = 0; i < result.size(); i++) {
+        result[i] = tolower(result[i]);
+    }
+    return result;
+}
+class work {
+private:
+    int time;
+    string name;
+    string content;
+    string nature;
+    bool done;
+public:
+    work() : time(0), name(""), content(""), nature("") {}
+    int get_time() {
+        return time;
+    }
+    string get_nature() const {
+        return nature;
+    }
+    void set_time(int t) {
+        time = t;
+    }
+    void set_name(string x){
+        name = x;
+    }
+    friend istream& operator >> (istream& in, work& w) {
+        in >> w.time;
+        in.ignore();
+        getline(in, w.name);
+        getline(in, w.content);
+        getline(in, w.nature);
+        to_lower(w.nature);
+        char y;
+        in >> y;
+        w.done = (y == 'y' || y == 'Y');
+        return in;
+    }
+    friend ostream& operator << (ostream& out, work& w) {
+        out << w.time << ' ' << w.name << ' ' << w.content << ' ' << w.nature << endl;
+        return out;
+    }
+    friend bool operator > (work w1, work w2) {
+        return w1.time > w2.time;
+    }
+    friend bool operator < (work w1, work w2) {
+        return w1.time < w2.time;
+    }
+    friend bool operator == (work w1, work w2) {
+        return w1.time == w2.time;
+    } 
+};
+
+class manage {
+private:
+    node<work> *root;
+    node<work> m;
+public:
+    manage() : root(NULL) {}
+
+    friend istream& operator >> (istream& in, manage& t) {
+        int n;
+        in >> n;
+        in.ignore();
+        work x;
+        for (int i = 0; i < n; i++) {
+            in >> x;
+            if (t.root == NULL) {
+                t.root = t.m.make_node(x);
+            } else {
+                t.root = t.root->insert(t.root, x);
+            }
+        }
+        return in;
+    }
+    friend ostream& operator << (ostream& out, manage& t) {
+        if (t.root != nullptr) {
+            t.root->display(t.root);
+        } else {
+            out << "trong";
+        }
+        return out;
+    }
+    work check(int x) {
+        if (root == nullptr || root->emty(root)) return work();
+        work temp;
+        temp.set_time(x);
+        node<work> *found = root->find(root, temp);
+        if (found) {
+            return found->get_data();
+        } else {
+            return work();
+        }
+    }
+     void filter_by_nature(node<work>* root, const string &nature, manage &result) {
+        if (root == nullptr) return;
+        if (to_lower(root->get_data().get_nature()) == to_lower(nature)) {
+            result.root = result.m.insert(result.root, root->get_data());
+        }
+        filter_by_nature(root->get_left(), nature, result);
+        filter_by_nature(root->get_right(), nature, result);
+    }
+    manage check_by_nature(string &x){
+        manage res;
+        filter_by_nature (root, x, res);
+        return res;
+    }
+};
+
+int main() {
+    manage m;
+    cin >> m;
+    cout << m;
+
+}
+
